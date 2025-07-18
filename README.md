@@ -69,7 +69,7 @@ npx playwright show-report
 npx playwright test --trace on
 
 🧪 Sample Console Output
-🟦 Flipkart Price: ₹10000
+🟦 Flipkart Price: ₹72000
 🟧 Amazon  Price: ₹72490
 ✅ Flipkart is cheaper.
 
