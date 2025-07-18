@@ -12,6 +12,6 @@ This repository contains a Playwright + TypeScript end‑to‑end test that comp
 
 1. **Clone & install dependencies**  
    ```bash
-   git clone <repo-url>
+   git clone <https://github.com/ksamrat083/price-comparison-playwright.git>
    cd price-comparison
    npm install
