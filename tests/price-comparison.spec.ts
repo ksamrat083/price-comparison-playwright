@@ -15,6 +15,10 @@ test('Compare iPhone 15 Plus price on Flipkart vs Amazon', async () => {
     amazonPage.goto('https://www.amazon.in')
   ]);
 
+  // ✅ Validate page titles (basic sanity check)
+  expect((await flipkartPage.title()).toLowerCase()).toContain('shopping');
+  expect((await amazonPage.title()).toLowerCase()).toContain('amazon');
+
   // 3) Dismiss any Flipkart login popup
   await flipkartPage.locator('button:has-text("✕")').click({ timeout: 2000 }).catch(() => {});
 
@@ -61,9 +65,28 @@ test('Compare iPhone 15 Plus price on Flipkart vs Amazon', async () => {
     amazonFirstProduct.click()
   ]);
 
-  // 7) Extract Flipkart price (first ₹ on the page)
-  const fkPriceText = await flipkartProductPage.locator('text=₹').first().textContent({ timeout: 10000 });
-  const flipkartPrice = parseFloat(fkPriceText!.replace(/[^\d.]/g, ''));
+  // 7) Extract Flipkart price (reliable extraction)
+  await flipkartProductPage.waitForTimeout(2000);
+
+  const fkPriceCandidates = flipkartProductPage.locator('div:has-text("₹")');
+  const count = await fkPriceCandidates.count();
+
+  let flipkartPrice = NaN;
+
+  for (let i = 0; i < count; i++) {
+    const text = await fkPriceCandidates.nth(i).innerText();
+    const priceMatch = text.match(/₹\s?([\d,]+)/); // Match ₹ followed by digits and commas
+
+    if (priceMatch) {
+      const raw = priceMatch[1].replace(/,/g, ''); // Remove commas
+      const parsed = parseFloat(raw);
+
+      if (!isNaN(parsed) && parsed > 10000 && parsed < 200000) { // sanity range
+        flipkartPrice = parsed;
+        break;
+      }
+    }
+  }
 
   // 8) Extract Amazon price
   const amazonWhole = await amazonPage.locator('.a-price-whole').first().textContent({ timeout: 10000 });
@@ -80,8 +103,7 @@ test('Compare iPhone 15 Plus price on Flipkart vs Amazon', async () => {
   if (flipkartPrice < amazonPrice) {
     console.log('✅ Flipkart is cheaper.');
   } else {
-    throw new Error(`❌ Test failed: Flipkart ₹${flipkartPrice} vs Amazon ₹${amazonPrice}`);
+    console.log('❌ Flipkart is not cheaper.');
+    throw new Error(`Flipkart ₹${flipkartPrice} vs Amazon ₹${amazonPrice}`);
   }
-
-  await browser.close();
-});
+})
