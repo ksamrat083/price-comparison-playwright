@@ -91,7 +91,7 @@ Use npx playwright show-report to view the test results, traces, and screenshots
 👨‍💻 Author
 Samrat Kavide
 
-💼 GitHub: @samratkavide
+💼 GitHub: @ksamrat083
 
 📜 License
 This project is licensed under the MIT License.
